@@ -3,6 +3,8 @@ package com.example.product_inventory.dto;
 import jakarta.validation.constraints.*;
 import lombok.Data;
 
+import java.util.Set;
+
 @Data
 public class UpdateProductRequest {
 
@@ -18,7 +20,8 @@ public class UpdateProductRequest {
     @Min(value = 0, message = "Stock quantity cannot be negative")
     private Integer stockQuantity;
 
-    @Pattern(regexp = "^(ELECTRONICS|CLOTHING|BOOKS|FOOD|OTHER)$",
-            message = "Category must be ELECTRONICS, CLOTHING, BOOKS, FOOD, or OTHER")
-    private String category;
+    @Positive(message = "Category id must be positive")
+    private Long categoryId;
+
+    private Set<@Positive(message = "Supplier id must be positive") Long> supplierIds;
 }
