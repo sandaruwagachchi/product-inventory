@@ -41,3 +41,5 @@ ORDER BY p.stockQuantity ASC
 
 With SQL logging enabled (`logging.level.org.hibernate.SQL=DEBUG`), you can see the generated SQL in application logs.
 
+
+<img width="1914" height="1020" alt="Screenshot 2026-03-25 091530" src="https://github.com/user-attachments/assets/4fdc52ec-a88f-4b6a-9fb3-4a287b8ccb50" />
