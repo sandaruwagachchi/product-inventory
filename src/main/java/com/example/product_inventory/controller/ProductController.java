@@ -1,10 +1,12 @@
 package com.example.product_inventory.controller;
 
 import com.example.product_inventory.dto.CreateProductRequest;
+import com.example.product_inventory.dto.LowStockProductDTO;
 import com.example.product_inventory.dto.ProductDTO;
 import com.example.product_inventory.dto.UpdateProductRequest;
 import com.example.product_inventory.service.ProductService;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -12,11 +14,16 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
+@CrossOrigin(origins = "http://localhost:3000")
 @RequestMapping("/api/products")
 @RequiredArgsConstructor
+@Validated
 public class ProductController {
 
     private final ProductService productService;
@@ -33,7 +40,7 @@ public class ProductController {
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "id") String sortBy,
             @RequestParam(defaultValue = "asc") String sortDir,
-            @RequestParam(required = false) String category) {
+            @RequestParam(required = false) Long categoryId) {
 
         Sort sort = sortDir.equalsIgnoreCase("desc")
                 ? Sort.by(sortBy).descending()
@@ -42,8 +49,8 @@ public class ProductController {
         Pageable pageable = PageRequest.of(page, size, sort);
 
         Page<ProductDTO> products;
-        if (category != null && !category.isEmpty()) {
-            products = productService.getProductsByCategory(category, pageable);
+        if (categoryId != null) {
+            products = productService.getProductsByCategory(categoryId, pageable);
         } else {
             products = productService.getAllProducts(pageable);
         }
@@ -81,5 +88,12 @@ public class ProductController {
     public ResponseEntity<Void> deleteProduct(@PathVariable Long id) {
         productService.deleteProduct(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/low-stock")
+    public ResponseEntity<List<LowStockProductDTO>> getLowStockProducts(
+            @RequestParam(defaultValue = "10") @Min(0) Integer threshold) {
+
+        return ResponseEntity.ok(productService.getLowStockProducts(threshold));
     }
 }

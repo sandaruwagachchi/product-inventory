@@ -1,10 +1,12 @@
 package com.example.product_inventory.mapper;
 
-import com.example.product_inventory.dto.CreateProductRequest;
-import com.example.product_inventory.dto.ProductDTO;
-import com.example.product_inventory.dto.UpdateProductRequest;
+import com.example.product_inventory.dto.*;
 import com.example.product_inventory.entity.Product;
+import com.example.product_inventory.entity.Supplier;
 import org.springframework.stereotype.Component;
+
+import java.util.Collections;
+import java.util.List;
 
 @Component
 public class ProductMapper {
@@ -18,8 +20,32 @@ public class ProductMapper {
         dto.setDescription(product.getDescription());
         dto.setPrice(product.getPrice());
         dto.setStockQuantity(product.getStockQuantity());
-        dto.setCategory(product.getCategory());
+        dto.setCategoryId(product.getCategory() != null ? product.getCategory().getId() : null);
+        dto.setCategoryName(product.getCategory() != null ? product.getCategory().getName() : null);
         return dto;
+    }
+
+    public LowStockProductDTO toLowStockDTO(Product product) {
+        if (product == null) return null;
+
+        CategoryDTO categoryDTO = new CategoryDTO(
+                product.getCategory().getId(),
+                product.getCategory().getName()
+        );
+
+        List<SupplierDTO> suppliers = product.getSuppliers() == null
+                ? Collections.emptyList()
+                : product.getSuppliers().stream()
+                .map(this::toSupplierDTO)
+                .toList();
+
+        return new LowStockProductDTO(
+                product.getId(),
+                product.getName(),
+                product.getStockQuantity(),
+                categoryDTO,
+                suppliers
+        );
     }
 
     public Product toEntity(CreateProductRequest request) {
@@ -30,7 +56,6 @@ public class ProductMapper {
         product.setDescription(request.getDescription());
         product.setPrice(request.getPrice());
         product.setStockQuantity(request.getStockQuantity());
-        product.setCategory(request.getCategory());
         return product;
     }
 
@@ -49,8 +74,9 @@ public class ProductMapper {
         if (request.getStockQuantity() != null) {
             product.setStockQuantity(request.getStockQuantity());
         }
-        if (request.getCategory() != null) {
-            product.setCategory(request.getCategory());
-        }
+    }
+
+    private SupplierDTO toSupplierDTO(Supplier supplier) {
+        return new SupplierDTO(supplier.getId(), supplier.getName(), supplier.getContactEmail());
     }
 }
